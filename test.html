@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>图片上传和人脸识别测试</title>
+</head>
+<body>
+    <h1>上传图片进行人脸识别</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="imageInput" accept="image/*" required>
+        <button type="button" onclick="uploadImage()">上传图片</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        function uploadImage() {
+            var formData = new FormData();
+            var imageFile = document.getElementById('imageInput').files[0];
+            formData.append("file", imageFile);
+
+            fetch('http://localhost:5000/upload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('result').innerHTML = '上传成功！检测到的人脸位置: ' + JSON.stringify(data.faces);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = '上传失败';
+            });
+        }
+    </script>
+</body>
+</html>
