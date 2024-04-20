@@ -1,18 +1,29 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from api.routes import init_api_routes
-from config import Config
+from extensions import db
+from flask_cors import CORS
+from config import Config  # 导入Config类
+import logging
 
-app = Flask(__name__)
-app.config.from_object(Config)
-
-db = SQLAlchemy(app)
 
 def create_app():
-    init_api_routes(app)  # 初始化API路由
+    app = Flask(__name__)
+    app.config.from_object(Config)  # 使用Config类配置应用
+
+    # 设置日志记录
+    logging.basicConfig(level=logging.DEBUG)
+
+    CORS(app)
+    db.init_app(app)
+    
     with app.app_context():
-        db.create_all()  # 创建数据库表
+        db.create_all()  # 创建所有未创建的数据库表
+        logging.info("All tables created.")
+        
+    init_api_routes(app)
+    
     return app
 
 if __name__ == '__main__':
-    create_app().run(debug=True)
+    app = create_app()
+    app.run(debug=True)
